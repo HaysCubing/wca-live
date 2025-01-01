@@ -31,6 +31,8 @@ const ROUND_RESULT_FRAGMENT = gql`
   }
 `;
 
+
+
 const ROUND_QUERY = gql`
   query Round($id: ID!) {
     round(id: $id) {
