@@ -41,28 +41,16 @@ const styles = {
     backgroundColor: grey["100"],
   },
   forecastFirst: {
-    color: (theme) => theme.palette.getContrastText(yellow["200"]),
-    backgroundColor: yellow["200"],
-  },
-  forecastFirstConfirmed: {
-    color: (theme) => theme.palette.getContrastText(yellow["A200"]),
+    color: (theme) => theme.palette.getContrastText(yellow["A100"]),
     backgroundColor: yellow["A200"],
   },
   forecastSecond: {
-    color: (theme) => theme.palette.getContrastText(teal["100"]),
-    backgroundColor: teal["100"],
-  },
-  forecastSecondConfirmed: {
-    color: (theme) => theme.palette.getContrastText(teal["300"]),
-    backgroundColor: teal["300"],
+    color: (theme) => theme.palette.getContrastText(teal["200"]),
+    backgroundColor: teal["200"],
   },
   forecastThird: {
-    color: (theme) => theme.palette.getContrastText(orange["100"]),
-    backgroundColor: orange["100"],
-  },
-  forecastThirdConfirmed: {
-    color: (theme) => theme.palette.getContrastText(orange["400"]),
-    backgroundColor: orange["400"],
+    color: (theme) => theme.palette.getContrastText(orange["300"]),
+    backgroundColor: orange["300"],
   },
   advancing: {
     color: (theme) => theme.palette.getContrastText(green["A400"]),
@@ -81,15 +69,16 @@ const styles = {
 };
 
 function getForecastStyle(result) {
-  var confirmed = result.worstPossibleRanking === result.bestPossibleRanking;
-  if (result.ranking == 1) {
-    return confirmed ? styles.forecastFirstConfirmed : styles.forecastFirst;
-  }
-  if (result.ranking == 2) {
-    return confirmed ? styles.forecastSecondConfirmed : styles.forecastSecond;
-  }
-  if (result.ranking == 3) {
-    return confirmed ? styles.forecastThirdConfirmed : styles.forecastThird;
+  if (result.worstPossibleRanking === result.bestPossibleRanking) {
+    if (result.ranking == 1) {
+      return styles.forecastFirst;
+    }
+    if (result.ranking == 2) {
+      return styles.forecastSecond;
+    }
+    if (result.ranking == 3) {
+      return styles.forecastThird;
+    }
   }
   if (!result.average) {
     return styles.forecastIncomplete;
