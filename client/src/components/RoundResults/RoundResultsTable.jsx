@@ -81,7 +81,7 @@ const styles = {
 };
 
 function getForecastStyle(result) {
-  var confirmed = result.worstPossibleRanking = result.bestPossibleRanking;
+  var confirmed = result.worstPossibleRanking === result.bestPossibleRanking;
   if (result.ranking == 1) {
     return confirmed ? styles.forecastFirstConfirmed : styles.forecastFirst;
   }

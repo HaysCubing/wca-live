@@ -295,11 +295,9 @@ function calculatePossibleRankings(results, format) {
   // console.log(bestPossibleResults);
 
   for (let result of results) {
-    // result.bestPossibleRanking = computeUpdatedRankingWorst(worstPossibleResults, result.bestPossibleAverage, result.best, result.person.id);
-    // result.worstPossibleRanking = computeUpdatedRankingBest(bestPossibleResults, result.worstPossibleAverage, result.best, result.person.id);
-    // console.log(result.worstPossibleRanking);
+    result.bestPossibleRanking = computeUpdatedRankingWorst(worstPossibleResults, result.bestPossibleAverage, result.best, result.person.id);
+    result.worstPossibleRanking = computeUpdatedRankingBest(bestPossibleResults, result.worstPossibleAverage, result.best, result.person.id);
   }
-  // console.log(results);
 }
 
 /**
@@ -321,10 +319,8 @@ export function getExpandedResults(results, format, eventId, forecastView) {
       forThirdRecordTag: null,
       singlePR: getSinglePR(result, eventId),
       bestPossibleSingle: 0,
-      // bestPossibleRanking: 0,
+      bestPossibleRanking: 0,
       worstPossibleRanking: Infinity,
-      testVar: 100,
-      rankingWorst: Infinity,
       bestPossibleAverage: 0,
       worstPossibleAverage: 0,
     };
