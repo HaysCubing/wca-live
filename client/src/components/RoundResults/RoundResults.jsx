@@ -37,6 +37,7 @@ function RoundResults({ results, format, eventId, competitionId, forecastView, a
             onResultClick={handleResultClick}
             forecastView={forecastView}
             advancementCondition={advancementCondition}
+            final={final}
           />
         </Grid>
         {!showAll && (

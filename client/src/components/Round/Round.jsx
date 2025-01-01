@@ -163,6 +163,7 @@ function Round() {
                   competitionId={competitionId}
                   forecastView={forecastView}
                   advancementCondition={round.advancementCondition}
+                  final={round.name == "Final"}
                 />
               }
             />

@@ -387,14 +387,19 @@ export function getExpandedResults(results, format, eventId, forecastView, advan
   for (let i = 1; i < expandedResults.length; i++) {
     var result = expandedResults[i];
     if (result.attempts.length != format.numberOfAttempts) {
+      // cleanup duplicated code
       if (isComplete(result.projectedAverage)) {
         result.forFirst = timeNeededToOvertake(result, format, projectedFirstAverage, projectedFirstBest);
-        if (result.forFirst <= result.singlePR) {
+        if (result.forFirst < result.bestPossibleSingle) {
+          result.forFirst = NA_VALUE;
+        } else if (result.forFirst <= result.singlePR) {
           result.forFirstRecordTag = "PR";
         }
         if (i > 2) {
           result.forThird = timeNeededToOvertake(result, format, projectedThirdAverage, projectedThirdBest);
-          if (result.forThird <= result.singlePR) {
+          if (result.forThird < result.bestPossibleSingle) {
+            result.forThird = NA_VALUE;
+          } else if (result.forThird <= result.singlePR) {
             result.forThirdRecordTag = "PR";
           }
         }

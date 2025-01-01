@@ -11,6 +11,10 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { green } from "@mui/material/colors";
+import { yellow } from "@mui/material/colors";
+import { orange } from "@mui/material/colors";
+import { teal } from "@mui/material/colors";
+import { grey } from "@mui/material/colors";
 import { alpha } from "@mui/material/styles";
 import { times } from "../../lib/utils";
 import { formatAttemptResult, getExpandedResults } from "../../lib/attempt-result";
@@ -32,6 +36,34 @@ const styles = {
     pr: { xs: 1, md: 2 },
     width: { xs: 40, md: 50 },
   },
+  forecastIncomplete: {
+    color: (theme) => theme.palette.getContrastText(grey["100"]),
+    backgroundColor: grey["100"],
+  },
+  forecastFirst: {
+    color: (theme) => theme.palette.getContrastText(yellow["200"]),
+    backgroundColor: yellow["200"],
+  },
+  forecastFirstConfirmed: {
+    color: (theme) => theme.palette.getContrastText(yellow["A200"]),
+    backgroundColor: yellow["A200"],
+  },
+  forecastSecond: {
+    color: (theme) => theme.palette.getContrastText(teal["100"]),
+    backgroundColor: teal["100"],
+  },
+  forecastSecondConfirmed: {
+    color: (theme) => theme.palette.getContrastText(teal["300"]),
+    backgroundColor: teal["300"],
+  },
+  forecastThird: {
+    color: (theme) => theme.palette.getContrastText(orange["100"]),
+    backgroundColor: orange["100"],
+  },
+  forecastThirdConfirmed: {
+    color: (theme) => theme.palette.getContrastText(orange["400"]),
+    backgroundColor: orange["400"],
+  },
   advancing: {
     color: (theme) => theme.palette.getContrastText(green["A400"]),
     backgroundColor: green["A400"],
@@ -47,6 +79,23 @@ const styles = {
     maxWidth: { xs: 150, md: 250 },
   },
 };
+
+function getForecastStyle(result) {
+  var confirmed = result.worstPossibleRanking = result.bestPossibleRanking;
+  if (result.ranking == 1) {
+    return confirmed ? styles.forecastFirstConfirmed : styles.forecastFirst;
+  }
+  if (result.ranking == 2) {
+    return confirmed ? styles.forecastSecondConfirmed : styles.forecastSecond;
+  }
+  if (result.ranking == 3) {
+    return confirmed ? styles.forecastThirdConfirmed : styles.forecastThird;
+  }
+  if (!result.average) {
+    return styles.forecastIncomplete;
+  }
+  return {};
+}
 
 const RoundResultsTable = memo(
   ({ results, format, eventId, competitionId, onResultClick, forecastView, advancementCondition }) => {
@@ -89,17 +138,19 @@ const RoundResultsTable = memo(
             {expandedResults.map((result) => (
               <TableRow
                 key={result.id}
-                hover
+                hover = {!forecastView}
                 sx={{
                   whiteSpace: "nowrap",
                   "&:last-child td": { border: 0 },
+                  ...(forecastView && final ? getForecastStyle(result) : {})
                 }}
                 onClick={() => onResultClick && onResultClick(result)}
               >
                 <RankingStat
                   result={result}
                   styles={styles}
-                  forecastView={forecastView} />
+                  forecastView={forecastView}
+                  final={final} />
                 <TableCell sx={{ ...styles.cell, ...styles.name }}>
                   {smScreen ? (
                     <Link
