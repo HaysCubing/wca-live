@@ -157,6 +157,7 @@ function Round() {
                   eventId={round.competitionEvent.event.id}
                   competitionId={competitionId}
                   forecastView={forecastView}
+                  final={round.name == "Final"}
                 />
               }
             />

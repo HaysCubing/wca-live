@@ -1,14 +1,18 @@
 import { TableCell, Tooltip } from "@mui/material";
 
-function RankingStat({ result, styles, forecastView }) {
+function displayAdvancing(advancing, forecastView, final) {
+    return advancing && !(forecastView && final);
+}
+
+function RankingStat({ result, styles, forecastView, final }) {
     return (
         <TableCell
             align="right"
             sx={{
                 ...styles.cell,
                 ...styles.ranking,
-                ...(result.advancing ? styles.advancing : {}),
-                ...(result.advancingQuestionable
+                ...(displayAdvancing(result.advancing, forecastView, final) ? styles.advancing : {}),
+                ...(displayAdvancing(result.advancingQuestionable, forecastView, final)
                     ? styles.advancingQuestionable
                     : {}),
             }}
