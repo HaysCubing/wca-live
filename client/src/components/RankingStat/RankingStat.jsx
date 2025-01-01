@@ -6,7 +6,6 @@ function displayAdvancing(advancing, forecastView, final) {
 
 function getRankingStyle(result, forecastView, final, styles) {
   var confirmed = result.worstPossibleRanking === result.bestPossibleRanking;
-  console.log("get ranking style");
   if (forecastView && final) {
     // Handled by parent
     if (confirmed) return {};

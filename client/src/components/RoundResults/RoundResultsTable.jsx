@@ -87,7 +87,7 @@ function getForecastStyle(result) {
 }
 
 const RoundResultsTable = memo(
-  ({ results, format, eventId, competitionId, onResultClick, forecastView, advancementCondition }) => {
+  ({ results, format, eventId, competitionId, onResultClick, forecastView, advancementCondition, final }) => {
     const smScreen = useMediaQuery((theme) => theme.breakpoints.up("sm"));
     const mdScreen = useMediaQuery((theme) => theme.breakpoints.up("md"));
 
