@@ -21,9 +21,9 @@ function RankingStat({ result, styles, forecastView, final }) {
             {forecastView &&
                 (<>
                     {" ("}
-                    <Tooltip title="Best possible ranking">
+                    {/* <Tooltip title="Best possible ranking">
                         <span>{result.bestPossibleRanking}</span>
-                    </Tooltip>
+                    </Tooltip> */}
                     {"/"}
                     <Tooltip title="Worst possible ranking">
                         <span>{result.worstPossibleRanking}</span>

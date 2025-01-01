@@ -108,6 +108,10 @@ const RoundResultsTable = memo(
     const stats = orderedResultStats(eventId, format, forecastView);
 
     const expandedResults = getExpandedResults(results, format, eventId, forecastView);
+    // for (let result of expandedResults) {
+    //   result.worstPossibleRanking = 100;
+    // }
+    // console.log(expandedResults);
     return (
       <Paper>
         <Table size="small">
