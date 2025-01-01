@@ -292,11 +292,14 @@ function calculatePossibleRankings(results, format) {
   }
   var bestPossibleResults = results.slice().sort((a, b) => compareBestPossibleResults(a, b))
   var worstPossibleResults = results.slice().sort((a, b) => compareWorstPossibleResults(a, b))
+  // console.log(bestPossibleResults);
 
   for (let result of results) {
-    result.bestPossibleRanking = computeUpdatedRankingWorst(worstPossibleResults, result.bestPossibleAverage, result.best, result.person.id);
-    result.worstPossibleRanking = computeUpdatedRankingBest(bestPossibleResults, result.worstPossibleAverage, result.best, result.person.id);
+    // result.bestPossibleRanking = computeUpdatedRankingWorst(worstPossibleResults, result.bestPossibleAverage, result.best, result.person.id);
+    // result.worstPossibleRanking = computeUpdatedRankingBest(bestPossibleResults, result.worstPossibleAverage, result.best, result.person.id);
+    // console.log(result.worstPossibleRanking);
   }
+  // console.log(results);
 }
 
 /**
@@ -331,8 +334,10 @@ export function getExpandedResults(results, format, eventId, forecastView, advan
       forThirdRecordTag: null,
       singlePR: getSinglePR(result, eventId),
       bestPossibleSingle: 0,
-      bestPossibleRanking: 0,
+      // bestPossibleRanking: 0,
       worstPossibleRanking: Infinity,
+      testVar: 100,
+      rankingWorst: Infinity,
       bestPossibleAverage: 0,
       worstPossibleAverage: 0,
     };
