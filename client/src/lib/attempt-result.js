@@ -32,7 +32,7 @@ function compareResultsSingleAverage(average1, single1, average2, single2) {
 
   const compare = average1 - average2;
   if (compare != 0) return compare;
-  compareAttemptResults(single1, single2);
+  return compareAttemptResults(single1, single2);
 }
 
 /**
@@ -263,7 +263,7 @@ function computeUpdatedRankingWorst(results, average, single, competitorId) {
     if (competitorId == result.person.id) {
       continue;
     }
-    if (compareResultsSingleAverage(result.worstPossibleAverage, result.best, average, single) > 0){
+    if (compareResultsSingleAverage(result.worstPossibleAverage, result.best, average, single) >= 0){
       break;
     }
     rank++;
@@ -272,12 +272,13 @@ function computeUpdatedRankingWorst(results, average, single, competitorId) {
 }
 
 function computeUpdatedRankingBest(results, average, single, competitorId) {
+  var print = competitorId === "485";
   var rank = 1;
   for (let result of results) {
     if (competitorId == result.person.id) {
       continue;
     }
-    if (compareResultsSingleAverage(result.bestPossibleAverage, result.best, average, single) > 0){
+    if (compareResultsSingleAverage(result.bestPossibleAverage, result.best, average, single) >= 0){
       break;
     }
     rank++;
@@ -292,7 +293,7 @@ function calculatePossibleRankings(results, format) {
   }
   var bestPossibleResults = results.slice().sort((a, b) => compareBestPossibleResults(a, b))
   var worstPossibleResults = results.slice().sort((a, b) => compareWorstPossibleResults(a, b))
-  // console.log(bestPossibleResults);
+  console.log(bestPossibleResults);
 
   for (let result of results) {
     result.bestPossibleRanking = computeUpdatedRankingWorst(worstPossibleResults, result.bestPossibleAverage, result.best, result.person.id);
@@ -320,7 +321,7 @@ export function getExpandedResults(results, format, eventId, forecastView) {
       singlePR: getSinglePR(result, eventId),
       bestPossibleSingle: 0,
       bestPossibleRanking: 0,
-      worstPossibleRanking: Infinity,
+      worstPossibleRanking: results.length,
       bestPossibleAverage: 0,
       worstPossibleAverage: 0,
     };
