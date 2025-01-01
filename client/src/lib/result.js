@@ -33,14 +33,14 @@ export function orderedResultStats(eventId, format, forecastView) {
       field: "forThird",
       recordTagField: "forThirdRecordTag"
     })
-    stats.push({
-      name: "Test",
-      field: "bestPossibleAverage",
-    })
-    stats.push({
-      name: "Test2",
-      field: "worstPossibleAverage",
-    })
+    // stats.push({
+    //   name: "Test",
+    //   field: "bestPossibleAverage",
+    // })
+    // stats.push({
+    //   name: "Test2",
+    //   field: "worstPossibleAverage",
+    // })
   }
   return stats;
 }

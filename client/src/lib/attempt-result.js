@@ -293,7 +293,6 @@ function calculatePossibleRankings(results, format) {
   }
   var bestPossibleResults = results.slice().sort((a, b) => compareBestPossibleResults(a, b))
   var worstPossibleResults = results.slice().sort((a, b) => compareWorstPossibleResults(a, b))
-  console.log(bestPossibleResults);
 
   for (let result of results) {
     result.bestPossibleRanking = computeUpdatedRankingWorst(worstPossibleResults, result.bestPossibleAverage, result.best, result.person.id);
