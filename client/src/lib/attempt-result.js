@@ -6,6 +6,7 @@ export const DNF_VALUE = -1;
 export const DNS_VALUE = -2;
 export const NA_VALUE = -3;
 
+const bestPossibleSingleRatio = .90;
 
 function isComplete(attemptResult) {
   return attemptResult > 0;
@@ -22,19 +23,31 @@ function compareAttemptResults(attemptResult1, attemptResult2) {
   return attemptResult1 - attemptResult2;
 }
 
+function compareResultsSingleAverage(average1, single1, average2, single2) {
+  if (!isComplete(average1) && !isComplete(average2)) {
+    compareAttemptResults(single1, single2);
+  }
+  if (!isComplete(average1) && isComplete(average2)) return 1;
+  if (isComplete(average1) && !isComplete(average2)) return -1;
+
+  const compare = average1 - average2;
+  if (compare != 0) return compare;
+  compareAttemptResults(single1, single2);
+}
+
 /**
  * Compares two results based on projected average, single
  */
 function compareProjectedResults(result1, result2) {
-  if (!isComplete(result1.projectedAverage) && !isComplete(result2.projectedAverage)) {
-    compareAttemptResults(result1.best, result2.best);
-  }
-  if (!isComplete(result1.projectedAverage) && isComplete(result2.projectedAverage)) return 1;
-  if (isComplete(result1.projectedAverage) && !isComplete(result2.projectedAverage)) return -1;
+  return compareResultsSingleAverage(result1.projectedAverage, result1.best, result2.projectedAverage, result2.best);
+}
 
-  const compare = result1.projectedAverage - result2.projectedAverage;
-  if (compare != 0) return compare;
-  compareAttemptResults(result1.best, result2.best);
+function compareBestPossibleResults(result1, result2) {
+  return compareResultsSingleAverage(result1.bestPossibleAverage, result1.best, result2.bestPossibleAverage, result2.best);
+}
+
+function compareWorstPossibleResults(result1, result2) {
+  return compareResultsSingleAverage(result1.worstPossibleAverage, result1.best, result2.worstPossibleAverage, result2.best);
 }
 
 /**
@@ -207,13 +220,83 @@ export function timeNeededToOvertake(result, format, overtakeAverage, overtakeBe
     }
     else {
       return NA_VALUE;
-    } 
+    }
   }
   // After adding a time, projection is an average
   const neededTotal = overtakeAverage * (result.attempts.length - 1);
   needed = neededTotal - result.countingSum + buffer;
   needed = getAdjustedNeeded(needed, result.best, overtakeBest, countingSolves);
   return needed >= result.best ? needed : NA_VALUE;
+}
+
+function getSinglePR(result, eventId) {
+  var personalBest = result.person.personalBests.filter((best) => (best.eventId === eventId && best.type === "single"))[0].best;
+  if (isComplete(result.best)) {
+    return Math.min(result.best, personalBest);
+  }
+  return personalBest;
+}
+
+function computeBestPossibleAverage(result, format) {
+  var attempts = result.attempts.map(attempt => attempt.result);
+
+  for (let i = attempts.length; i < format.numberOfAttempts; i++) {
+    attempts.push(result.bestPossibleSingle);
+  }
+  return format.numberOfAttempts === 3 ? meanOfX(attempts) : averageOf5(attempts);
+}
+
+function computeWorstPossibleAverage(result, format) {
+  if (result.average != SKIPPED_VALUE) {
+    return result.average;
+  }
+  if (format.numberOfAttempts === 3 || result.attempts.length < 4) {
+    return DNF_VALUE;
+  }
+  return worstPossibleAverage(result.attempts.map((attempt) => attempt.result));
+}
+
+// pass accessor so don't duplicate this
+function computeUpdatedRankingWorst(results, average, single, competitorId) {
+  var rank = 1;
+  for (let result of results) {
+    if (competitorId == result.person.id) {
+      continue;
+    }
+    if (compareResultsSingleAverage(result.worstPossibleAverage, result.best, average, single) > 0){
+      break;
+    }
+    rank++;
+  }
+  return rank;
+}
+
+function computeUpdatedRankingBest(results, average, single, competitorId) {
+  var rank = 1;
+  for (let result of results) {
+    if (competitorId == result.person.id) {
+      continue;
+    }
+    if (compareResultsSingleAverage(result.bestPossibleAverage, result.best, average, single) > 0){
+      break;
+    }
+    rank++;
+  }
+  return rank;
+}
+
+function calculatePossibleRankings(results, format) {
+  for (let result of results) {
+    result.bestPossibleAverage = computeBestPossibleAverage(result, format);
+    result.worstPossibleAverage = computeWorstPossibleAverage(result, format);
+  }
+  var bestPossibleResults = results.slice().sort((a, b) => compareBestPossibleResults(a, b))
+  var worstPossibleResults = results.slice().sort((a, b) => compareWorstPossibleResults(a, b))
+
+  for (let result of results) {
+    result.bestPossibleRanking = computeUpdatedRankingWorst(worstPossibleResults, result.bestPossibleAverage, result.best, result.person.id);
+    result.worstPossibleRanking = computeUpdatedRankingBest(bestPossibleResults, result.worstPossibleAverage, result.best, result.person.id);
+  }
 }
 
 /**
@@ -223,22 +306,32 @@ export function timeNeededToOvertake(result, format, overtakeAverage, overtakeBe
  * forFirst: time needed to overtake first place
  * forThird: time needed to overtake third place
  */
-export function getExpandedResults(results, format, forecastView) {  
+export function getExpandedResults(results, format, eventId, forecastView) {
   if (results.length == 0 || !forecastView) return results;
   var expandedResults = results.map((result) => {
-    return { ...result, projectedAverage: SKIPPED_VALUE,
-                        countingSum: 0,
-                        forFirst: SKIPPED_VALUE,
-                        forThird: SKIPPED_VALUE,
-     };
+    return {
+      ...result, projectedAverage: SKIPPED_VALUE,
+      countingSum: 0,
+      forFirst: SKIPPED_VALUE,
+      forFirstRecordTag: null,
+      forThird: SKIPPED_VALUE,
+      forThirdRecordTag: null,
+      singlePR: getSinglePR(result, eventId),
+      bestPossibleSingle: 0,
+      bestPossibleRanking: 0,
+      worstPossibleRanking: Infinity,
+      bestPossibleAverage: 0,
+      worstPossibleAverage: 0,
+    };
   });
   const advancingCount = results.filter((result) => result.advancing || result.advancingQuestionable).length;
   const roundIncomplete = results.some((result) => isSkipped(result.average));
 
   for (let result of expandedResults) {
-    computeProjectedAverage(result, format); 
+    computeProjectedAverage(result, format);
     result.advancing = false;
     result.advancingQuestionable = false;
+    result.bestPossibleSingle = Math.floor(result.singlePR * bestPossibleSingleRatio);
   }
 
   if (expandedResults[0].projectedAverage == SKIPPED_VALUE) {
@@ -251,13 +344,13 @@ export function getExpandedResults(results, format, forecastView) {
   var prevResult = expandedResults[0];
   for (let i = 0; i < expandedResults.length; i++) {
     let currentResult = expandedResults[i];
-    if (isSkipped(currentResult.projectedAverage)){
+    if (isSkipped(currentResult.projectedAverage)) {
       break;
     }
     if (currentResult.projectedAverage === prevResult.projectedAverage &&
       currentResult.best === prevResult.best) {
-        // Rankings tie
-        currentResult.ranking = prevResult.ranking;
+      // Rankings tie
+      currentResult.ranking = prevResult.ranking;
     } else {
       currentResult.ranking = i + 1;
     }
@@ -283,12 +376,21 @@ export function getExpandedResults(results, format, forecastView) {
     if (result.attempts.length != format.numberOfAttempts) {
       if (isComplete(result.projectedAverage)) {
         result.forFirst = timeNeededToOvertake(result, format, projectedFirstAverage, projectedFirstBest);
+        if (result.forFirst <= result.singlePR) {
+          result.forFirstRecordTag = "PR";
+        }
         if (i > 2) {
           result.forThird = timeNeededToOvertake(result, format, projectedThirdAverage, projectedThirdBest);
+          if (result.forThird <= result.singlePR) {
+            result.forThirdRecordTag = "PR";
+          }
         }
       }
     }
   }
+
+  calculatePossibleRankings(expandedResults, format);
+
   return expandedResults;
 }
 
@@ -476,9 +578,8 @@ function formatMbldAttemptResult(attemptResult) {
     decodeMbldAttemptResult(attemptResult);
   const clockFormat = centisecondsToClockFormat(centiseconds);
   const shortClockFormat = clockFormat.replace(/\.00$/, "");
-  return `${solved}/${attempted} ${
-    centiseconds < 6000 ? `0:${shortClockFormat}` : shortClockFormat
-  }`;
+  return `${solved}/${attempted} ${centiseconds < 6000 ? `0:${shortClockFormat}` : shortClockFormat
+    }`;
 }
 
 function formatFmAttemptResult(attemptResult) {
@@ -574,9 +675,8 @@ export function attemptResultsWarning(
     trimTrailingSkipped(attemptResults).indexOf(SKIPPED_VALUE);
   if (skippedGapIndex !== -1) {
     return {
-      description: `You've omitted attempt ${
-        skippedGapIndex + 1
-      }. Make sure it's intentional.`,
+      description: `You've omitted attempt ${skippedGapIndex + 1
+        }. Make sure it's intentional.`,
     };
   }
   const completeAttempts = attemptResults.filter(isComplete);

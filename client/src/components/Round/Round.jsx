@@ -8,6 +8,7 @@ import ResultsProjector from "../ResultsProjector/ResultsProjector";
 import RoundResults from "../RoundResults/RoundResults";
 import RoundToolbar from "./RoundToolbar";
 
+// Only fetch personal bests for new code
 const ROUND_RESULT_FRAGMENT = gql`
   fragment roundResult on Result {
     ranking
@@ -21,6 +22,11 @@ const ROUND_RESULT_FRAGMENT = gql`
     person {
       id
       name
+      personalBests {
+        eventId
+        type
+        best
+      }
       country {
         iso2
         name
@@ -30,8 +36,6 @@ const ROUND_RESULT_FRAGMENT = gql`
     averageRecordTag
   }
 `;
-
-
 
 const ROUND_QUERY = gql`
   query Round($id: ID!) {
