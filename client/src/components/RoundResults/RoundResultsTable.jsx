@@ -17,6 +17,7 @@ import { formatAttemptResult, getExpandedResults } from "../../lib/attempt-resul
 import { orderedResultStats, paddedAttemptResults } from "../../lib/result";
 import RecordTagBadge from "../RecordTagBadge/RecordTagBadge";
 import ResultStat from "../ResultStat/ResultStat";
+import RankingStat from "../RankingStat/RankingStat";
 import { forecastViewDisabled } from "../Round/Round";
 
 const styles = {
@@ -57,7 +58,7 @@ const RoundResultsTable = memo(
     }
     const stats = orderedResultStats(eventId, format, forecastView);
 
-    const expandedResults = getExpandedResults(results, format, forecastView, advancementCondition);
+    const expandedResults = getExpandedResults(results, format, eventId, forecastView, advancementCondition);
     return (
       <Paper>
         <Table size="small">
@@ -95,19 +96,10 @@ const RoundResultsTable = memo(
                 }}
                 onClick={() => onResultClick && onResultClick(result)}
               >
-                <TableCell
-                  align="right"
-                  sx={{
-                    ...styles.cell,
-                    ...styles.ranking,
-                    ...(result.advancing ? styles.advancing : {}),
-                    ...(result.advancingQuestionable
-                      ? styles.advancingQuestionable
-                      : {}),
-                  }}
-                >
-                  {result.ranking}
-                </TableCell>
+                <RankingStat
+                  result={result}
+                  styles={styles}
+                  forecastView={forecastView} />
                 <TableCell sx={{ ...styles.cell, ...styles.name }}>
                   {smScreen ? (
                     <Link

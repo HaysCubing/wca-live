@@ -147,6 +147,10 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
     field :assignments, non_null(list_of(non_null(:assignment))) do
       resolve dataloader(:db)
     end
+
+    field :personal_bests, non_null(list_of(non_null(:personal_best))) do
+      resolve dataloader(:db)
+    end
   end
 
   @desc "An object representing person's assignment to an activity."
@@ -160,6 +164,18 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
     end
 
     field :activity, non_null(:activity) do
+      resolve dataloader(:db)
+    end
+  end
+
+  @desc "An object representing person's personal bests."
+  object :personal_best do
+    field :id, non_null(:id)
+    field :event_id, non_null(:string)
+    field :type, non_null(:string)
+    field :best, :integer
+
+    field :person, non_null(:person) do
       resolve dataloader(:db)
     end
   end
